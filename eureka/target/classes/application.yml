@@ -1,0 +1,60 @@
+spring:
+  application:
+    name: eureka-server
+server:
+  port: 8080
+eureka:
+  instance:
+    hostname: ${spring.cloud.client.ipAddress} # 本机ip
+    prefer-ip-address: true
+    homePageUrlPath: ${server.context-path:}
+    statusPageUrlPath: ${eureka.instance.homePageUrlPath}${management.context-path}/info
+    healthCheckUrlPath: ${eureka.instance.homePageUrlPath}${management.context-path}/health
+    metadataMap:
+      user:
+        name:  ${security.user.name}
+        password: ${security.user.password}
+      management:
+        context-path: ${eureka.instance.homePageUrlPath}${management.context-path}
+      # dns txt记录
+      # txt.eureka-server-region.www   IN      TXT     "www.eureka.com"
+      #txt.www.eureka.com.     IN      TXT     "192.168.22.128" "192.168.22.129" "192.168.22.130"
+      zone: www # 地域内的小区域,这个zone是在txt文本配置的
+  client:
+    #    service-url:
+    #      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+    #       defaultZone: http://eureka1:8671/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+    eureka-server-d-n-s-name: www.eureka.com  # DNS域名
+    region: eureka-server-region   # 地域
+    use-dns-for-fetching-service-urls: true
+    eureka-server-port: 8080
+    eureka-server-u-r-l-context: eureka
+  server:
+    eviction-interval-timer-in-ms: 5000 #扫描失效服务的间隔时间（缺省为60*1000ms）
+
+# actuator 管理接口安全认证 需要依赖spring-security jar
+management:
+  context-path: /management
+  security:
+    roles: SUPERUSER
+    enabled: true
+
+security:
+  basic:
+    enabled: true
+    path: ${management.context-path}
+  user:
+    name: admin
+    password: admin
+    role: SUPERUSER
+endpoints:
+  actuator:
+    enabled: true
+    path: ${management.context-path}
+  shutdown:
+    enabled: true
+
+
+

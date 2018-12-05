@@ -1,0 +1,91 @@
+
+spring:
+  application:
+    name: zuul
+server:
+  port: 2000
+
+zuul:
+  ignoredPatterns: /**/admin/** #忽略路径含有admin的请求
+  sensitiveHeaders: Cookie,Set-Cookie,Authorization #对于外部服务 忽律这些敏感头
+  #ignoredHeaders:      #忽略的头部
+  routes:
+    hello:
+      path: /hello/**
+      serviceId: eureka-client-consumer   #serviceId 在虚拟地址 ribbon 通过serviceId查找服务列表 这里从eureka中获取
+    #      url: http://localhost:8001  #物理地址
+    r:
+      path: /**
+      url: forward:/
+#    r:
+#      path: /**
+#      url: /
+#  prefix: /api #增加前缀
+eureka:
+  instance:
+    hostname: ${spring.cloud.client.ipAddress} # 本机ip
+    prefer-ip-address: true
+    homePageUrlPath: ${server.context-path:}
+    statusPageUrlPath: ${eureka.instance.homePageUrlPath}${management.context-path}/info
+    healthCheckUrlPath: ${eureka.instance.homePageUrlPath}${management.context-path}/health
+    metadataMap:
+      user:
+        name:  ${security.user.name}
+        password: ${security.user.password}
+      management:
+        context-path: ${eureka.instance.homePageUrlPath}${management.context-path}
+      # dns txt记录
+      # txt.eureka-server-region.www   IN      TXT     "www.eureka.com"
+      #txt.www.eureka.com.     IN      TXT     "192.168.22.128" "192.168.22.129" "192.168.22.130"
+      zone: www # 地域内的小区域,这个zone是在txt文本配置的
+  client:
+    #    service-url:
+    #      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+    #       defaultZone: http://eureka1:8671/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+    eureka-server-d-n-s-name: www.eureka.com  # DNS域名
+    region: eureka-server-region   # 地域
+    use-dns-for-fetching-service-urls: true
+    eureka-server-port: 8080
+    eureka-server-u-r-l-context: eureka
+
+##timeout config
+hystrix:
+  command:
+    default:
+      execution:
+        timeout:
+          enabled: true
+        isolation:
+          thread:
+            timeoutInMilliseconds: 60000
+##重试
+ribbon:
+  ReadTimeout: 60000
+  ConnectTimeout: 60000
+  MaxAutoRetries: 0
+#  MaxAutoRetriesNextServer: 1
+
+# actuator 管理接口安全认证
+management:
+  context-path: /management
+  security:
+    enabled: true
+    roles: SUPERUSER
+
+security:
+  basic:
+    enabled: true
+    path: ${management.context-path}
+  user:
+    name: admin
+    password: admin
+    role: SUPERUSER
+
+endpoints:
+  actuator:
+    enabled: true
+    path: ${management.context-path}
+  shutdown:
+    enabled: true
