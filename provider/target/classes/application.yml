@@ -4,7 +4,9 @@ server:
 spring:
   application:
     name: eureka-client-provider
-
+  boot: # 上报 给admin server 应用监控管理
+    admin:
+      url: http://localhost:9090
 eureka:
   instance:
     hostname: ${spring.cloud.client.ipAddress} # 本机ip
@@ -38,21 +40,9 @@ eureka:
 management:
   context-path: /management
   security:
-    enabled: true
-    roles: SUPERUSER
-
-security:
-  basic:
-    enabled: true
-    path: ${management.context-path}
-  user:
-    name: admin
-    password: admin
-    role: SUPERUSER
+    enabled: false # 应用监控 amdin server 1.5.x 需要设置为false 否则会没权限
 
 endpoints:
-  actuator:
-    enabled: true
-    path: ${management.context-path}
   shutdown:
-    enabled: true  # 可以通过actuator优雅的关闭
+    enabled: true #优雅停机 /management/showdown
+

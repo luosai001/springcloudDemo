@@ -3,7 +3,9 @@ server:
 spring:
   application:
     name: eureka-client-consumer
-
+  boot: # 上报 给admin server 应用监控管理
+    admin:
+      url: http://localhost:9090
 eureka:
   instance:
     hostname: ${spring.cloud.client.ipAddress} # 本机ip
@@ -52,21 +54,8 @@ hystrix:
 management:
   context-path: /management
   security:
-    enabled: true
-    roles: SUPERUSER
-
-security:
-  basic:
-    enabled: true
-    path: ${management.context-path}
-  user:
-    name: admin
-    password: admin
-    role: SUPERUSER
+    enabled: false
 
 endpoints:
-  actuator:
-    enabled: true
-    path: ${management.context-path}
   shutdown:
-    enabled: true
+    enabled: true #优雅停机 /management/showdown

@@ -2,6 +2,10 @@
 spring:
   application:
     name: zuul
+  boot: # 上报 给admin server 应用监控管理
+    admin:
+      url: http://localhost:9090
+
 server:
   port: 2000
 
@@ -67,25 +71,12 @@ ribbon:
   MaxAutoRetries: 0
 #  MaxAutoRetriesNextServer: 1
 
-# actuator 管理接口安全认证
+# actuator 管理接口安全认证 这个配置其实只需要加载eureka 服务就好，所依赖的spring-security 也是，不需要每个服务都加
 management:
   context-path: /management
   security:
-    enabled: true
-    roles: SUPERUSER
-
-security:
-  basic:
-    enabled: true
-    path: ${management.context-path}
-  user:
-    name: admin
-    password: admin
-    role: SUPERUSER
-
+    enabled: false
 endpoints:
-  actuator:
-    enabled: true
-    path: ${management.context-path}
   shutdown:
-    enabled: true
+    enabled: true #优雅停机 /management/showdown
+
